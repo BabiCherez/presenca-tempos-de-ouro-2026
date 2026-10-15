@@ -1,0 +1,5 @@
+audio/*.wav
+audio/vo/*.wav
+build/*_video.mp4
+build/TDO_animatic_v1_16x9.mp4
+__pycache__/

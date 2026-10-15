@@ -1,0 +1,52 @@
+{
+ "vo01": {
+  "slot": 4.0,
+  "tts": 2.45,
+  "fits": true
+ },
+ "vo02": {
+  "slot": 2.5,
+  "tts": 2.71,
+  "fits": false
+ },
+ "vo03": {
+  "slot": 3.5,
+  "tts": 4.06,
+  "fits": false
+ },
+ "vo04": {
+  "slot": 4.5,
+  "tts": 5.58,
+  "fits": false
+ },
+ "vo05": {
+  "slot": 2.5,
+  "tts": 3.1,
+  "fits": false
+ },
+ "vo06": {
+  "slot": 2.5,
+  "tts": 2.86,
+  "fits": false
+ },
+ "vo07": {
+  "slot": 4.0,
+  "tts": 5.11,
+  "fits": false
+ },
+ "vo08": {
+  "slot": 2.0,
+  "tts": 2.02,
+  "fits": true
+ },
+ "vo09a": {
+  "slot": 2.3,
+  "tts": 2.52,
+  "fits": false
+ },
+ "vo09b": {
+  "slot": 5.2,
+  "tts": 5.44,
+  "fits": false
+ }
+}

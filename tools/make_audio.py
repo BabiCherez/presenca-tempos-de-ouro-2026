@@ -399,7 +399,11 @@ def vo_track():
             x = x / np.max(np.abs(x)) * 0.5
         add(V, x, t0, 1.0)
         spans.append((t0, t0 + len(x) / SR))
+        LINES[vid] = x
     return V, spans
+
+
+LINES = {}
 
 
 def main():
@@ -416,9 +420,21 @@ def main():
     def norm(x, lufs):
         l = meter.integrated_loudness(x)
         return x * 10 ** ((lufs - l) / 20) if np.isfinite(l) else x
-    M = norm(M, -20); S = norm(S, -27); V = norm(V, -15)
+    def gain_to(x, lufs):
+        l = meter.integrated_loudness(x)
+        return 10 ** ((lufs - l) / 20) if np.isfinite(l) else 1.0
+    gm, gs, gv = gain_to(M, -20), gain_to(S, -27), gain_to(V, -15)
+    M, S, V = M * gm, S * gs, V * gv
     mix = M + S + V
-    mix = norm(mix, -14.0)
+    gmix = gain_to(mix, -14.0)
+    mix = mix * gmix
+    # stems com o ganho final, para o Remotion somar e chegar ao mesmo mix (antes do limitador)
+    stems = ROOT / "audio" / "stems"; (stems / "vo").mkdir(parents=True, exist_ok=True)
+    sf.write(stems / "trilha.wav", (M * gmix).astype(np.float32), SR, subtype="PCM_24")
+    sf.write(stems / "sfx.wav", (S * gmix).astype(np.float32), SR, subtype="PCM_24")
+    for vid, x in LINES.items():
+        y = np.clip(x * gv * gmix * 1.414, -1, 1)  # pan central (add() aplica 1.414 * cos(pi/4) = 1)
+        sf.write(stems / "vo" / f"{vid}.wav", (y * 0.7071).astype(np.float32), SR, subtype="PCM_24")
     peak = np.max(np.abs(mix))
     lim = 10 ** (-1.2 / 20)
     if peak > lim:  # limitador suave (soft-clip) para teto de -1 dBTP aprox.

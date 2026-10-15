@@ -33,3 +33,9 @@ python3 tools/build_prompts.py      # prompts por plano
 ```
 
 `tools/shots.py` é a fonte única de tempos, ações, narração, cartelas e efeitos.
+
+## Projeto Remotion (montagem editável)
+
+A pasta `remotion/` traz o projeto de montagem e finalização. Ele tem a linha do tempo dos 44 planos, a cor de cada época, as transições, as cartelas, a assinatura em estilo final e uma faixa de áudio para cada fala. As versões 16:9, 9:16 e animatic saem da mesma fonte. Veja `remotion/README.md`.
+
+Para atualizar depois de mudar `tools/shots.py` ou o áudio, rode `bash tools/sync_remotion.sh` (adicione `--clips` para refazer os clipes provisórios).

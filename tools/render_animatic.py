@@ -29,6 +29,7 @@ ap.add_argument("--from", dest="t_from", type=float, default=0.0)
 ap.add_argument("--to", dest="t_to", type=float, default=120.0)
 ap.add_argument("--stills", action="store_true", help="exporta um quadro-chave por plano (contact sheet)")
 ap.add_argument("--hud", type=int, default=1)
+ap.add_argument("--clips", type=str, default="", help="exporta um clipe provisório por plano (sem HUD, sem cor, sem transição) nesta pasta")
 ARGS = ap.parse_args() if __name__ == "__main__" else ap.parse_args([])
 
 W, H = (720, 1280) if ARGS.vertical else (1280, 720)
@@ -706,7 +707,42 @@ def render_frame(fi):
     return img.tobytes()
 
 
+HANDLE = 0.5  # s de sobra no fim de cada clipe, como os clipes gerados por IA
+
+
+def clip_frame(args):
+    """Quadro cru (cena + luz) de um plano, para o Remotion aplicar cor e transições."""
+    sid, k = args
+    s = SHOT_BY_ID[sid]
+    dur = s[2] - s[1]
+    t = s[1] + k / FPS
+    u = min(1.0, (k / FPS) / dur)
+    f = light_fx(render_scene(sid, u, t), sid, u, t)
+    return f.tobytes()
+
+
+def export_clips(dest):
+    dest = Path(dest); dest.mkdir(parents=True, exist_ok=True)
+    with Pool(4) as p:
+        for s in SHOTS:
+            sid = s[0]
+            if sid in ("5.6", "6.1", "6.2"):
+                continue  # motion graphics feitos no Remotion
+            n = int(round((s[2] - s[1] + HANDLE) * FPS))
+            out = dest / f"TDO_{sid}.mp4"
+            ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
+                                   "-s", f"{SW}x{SH}", "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "fast",
+                                   "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)], stdin=subprocess.PIPE)
+            for b in p.imap(clip_frame, [(sid, k) for k in range(n)], chunksize=6):
+                ff.stdin.write(b)
+            ff.stdin.close(); ff.wait()
+            print("  clip", sid, n, "frames", flush=True)
+
+
 def main():
+    if ARGS.clips:
+        export_clips(ARGS.clips)
+        return
     out_dir = ROOT / "build"; out_dir.mkdir(exist_ok=True)
     if ARGS.stills:
         sheet_dir = ROOT / "build" / ("keyframes_v" if W < H else "keyframes")

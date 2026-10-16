@@ -22,14 +22,19 @@ export const useGoldEnv = () => {
  * Envelope-convite. Frente voltada para +Y (deitado). Para segurar na mão, gire o grupo.
  * glow: brilho dourado escapando pela borda (0–1).
  */
-export const Envelope: React.FC<{ glow?: number; glowTex?: THREE.Texture }> = ({ glow = 0, glowTex }) => {
-  const env = useGoldEnv();
+export const Envelope: React.FC<{ glow?: number; glowTex?: THREE.Texture; envOverride?: THREE.Texture; navyBoost?: number }> = ({
+  glow = 0,
+  glowTex,
+  envOverride,
+}) => {
+  const studio = useGoldEnv();
+  const env = envOverride ?? studio;
   const maps = useMemo(() => inviteMaps(), []);
   const seal = useMemo(() => ({ geo: sealGeometry(), bump: sealBump() }), []);
   return (
     <group>
       {/* frente com foil dourado */}
-      <mesh rotation={[-Math.PI / 2, 0, Math.PI]} position={[0, 0.0016, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, Math.PI]} position={[0, 0.0016, 0]} castShadow receiveShadow>
         <planeGeometry args={[ENV_W, ENV_H]} />
         <meshStandardMaterial
           map={maps.map}
@@ -44,12 +49,12 @@ export const Envelope: React.FC<{ glow?: number; glowTex?: THREE.Texture }> = ({
         />
       </mesh>
       {/* corpo com bordas douradas (gilded edges) */}
-      <mesh>
+      <mesh castShadow receiveShadow>
         <boxGeometry args={[ENV_W + 0.002, 0.003, ENV_H + 0.002]} />
         <meshStandardMaterial color="#c9a13b" metalness={1} roughness={0.25} envMap={env} envMapIntensity={1.2} />
       </mesh>
       {/* lacre de cera dourado, sobre o losango inferior */}
-      <mesh geometry={seal.geo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0018, -(ENV_H / 2 - 0.006)]} scale={0.8}>
+      <mesh castShadow geometry={seal.geo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0018, -(ENV_H / 2 - 0.006)]} scale={0.8}>
         <meshStandardMaterial
           color="#b88a2a"
           metalness={0.75}

@@ -51,12 +51,12 @@ const rightArm = (f: number): ArmPose => {
   // distância do nó dos dedos até a lente (m)
   const z = interpolate(
     f,
-    [0, 8, 11, 13, 14, 17, 22, 25, 26, 29, 33, 44],
-    [0.45, 0.2, 0.23, 0.105, 0.11, 0.17, 0.2, 0.115, 0.12, 0.17, 0.2, 0.42],
+    [0, 8, 11, 13, 14, 17, 22, 25, 26, 29, 33, 52, 66],
+    [0.17, 0.2, 0.23, 0.105, 0.11, 0.17, 0.2, 0.115, 0.12, 0.17, 0.2, 0.2, 0.42],
     { ...C, easing: Easing.bezier(0.45, 0, 0.55, 1) },
   );
-  const y = interpolate(f, [0, 8, 32, 48], [1.2, 1.59, 1.59, 1.2], { ...C, easing: ease });
-  const x = interpolate(f, [0, 8, 32, 48], [0.14, 0.02, 0.02, 0.26], { ...C, easing: ease });
+  const y = interpolate(f, [0, 8, 52, 66], [1.6, 1.59, 1.6, 1.25], { ...C, easing: ease });
+  const x = interpolate(f, [0, 8, 52, 66], [0.0, -0.005, 0.005, 0.3], { ...C, easing: ease });
   // flexão do punho no contato (o punho "quebra" levemente)
   const flex = interpolate(f, [11, 13, 15, 23, 25, 27], [0.18, -0.08, 0.05, 0.16, -0.05, 0.05], C);
   const r = new THREE.Euler(...KNOCK_ROT);
@@ -66,8 +66,8 @@ const rightArm = (f: number): ArmPose => {
     wrist: [x, y, CAM_Z + z + 0.085],
     handRot: [e.x, e.y, e.z],
     hand: {
-      curl: interpolate(f, [0, 6, 34, 46], [0.6, 1, 1, 0.55], C),
-      thumb: interpolate(f, [0, 6, 34, 46], [0.4, 1, 1, 0.4], C),
+      curl: interpolate(f, [0, 54, 64], [1, 1, 0.55], C),
+      thumb: interpolate(f, [0, 54, 64], [1, 1, 0.4], C),
       fingerBias: [0, 0.05, 0.1, 0.15],
     },
   };
@@ -75,13 +75,13 @@ const rightArm = (f: number): ArmPose => {
 
 /** Mão esquerda: sobe com o convite, desacelera e segura; respiração. */
 const leftArm = (f: number) => {
-  const t = interpolate(f, [26, 50], [0, 1], { ...C, easing: Easing.bezier(0.2, 0.7, 0.25, 1) });
-  const settle = f > 50 ? Math.sin(((f - 50) / 46) * Math.PI) * 0.004 : 0;
+  const t = interpolate(f, [28, 52], [0, 1], { ...C, easing: Easing.bezier(0.2, 0.7, 0.25, 1) });
+  const settle = f > 52 ? Math.sin(((f - 52) / 56) * Math.PI) * 0.004 : 0;
   const breathe = Math.sin(f / 11) * 0.0025;
   const y = THREE.MathUtils.lerp(1.12, 1.725, t) + settle + breathe;
   const z = THREE.MathUtils.lerp(0.58, 0.36, t);
   const x = THREE.MathUtils.lerp(-0.16, -0.008, t);
-  const roll = interpolate(f, [26, 50, 96], [0.2, 0.035, 0.015], C) + Math.sin(f / 17) * 0.008;
+  const roll = interpolate(f, [28, 52, 108], [0.2, 0.035, 0.015], C) + Math.sin(f / 17) * 0.008;
   const r = new THREE.Euler(...HOLD_ROT);
   const q = new THREE.Quaternion().setFromEuler(r).premultiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.08, 0, roll)));
   const e = new THREE.Euler().setFromQuaternion(q);
@@ -260,7 +260,7 @@ const Frame3D: React.FC = () => {
         {(env) => (
           <>
             <Torso f={f} env={env} />
-            {f < 50 ? (
+            {f < 68 ? (
               <Arm shoulder={[0.2, 1.45, CAM_Z + 0.7]} pose={rightArm(f)} side={1} pole={[0.8, -1, 0.2]} env={env} />
             ) : (
               <Arm

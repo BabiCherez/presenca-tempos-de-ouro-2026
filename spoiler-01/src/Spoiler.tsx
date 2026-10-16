@@ -6,8 +6,8 @@ import { ShotCorridor, ShotEnvelope, ShotKnock, ShotOpen, ShotPeephole, ShotUnde
 
 /**
  * Spoiler 01 — "Alguém bateu à sua porta" (30 s, 24 fps).
- * 0–3 s breu e fresta · 3–9 s corredor e porta 512 · 9–12 s três batidas · 12–15 s olho mágico vazio
- * 15–20 s envelope desliza por baixo da porta · 20–25 s "Convite" e brilho dourado · 25–30 s EM BREVE
+ * 0–3 s breu e fresta · 3–9 s corredor e porta 512 · 9–11 s três batidas · 11–17 s olho mágico: o mensageiro bate,
+ * espia, mostra o convite e se abaixa · 17–21 s envelope sob a porta · 21–25,5 s "Convite" · 25,5–30 s EM BREVE
  */
 export const Spoiler: React.FC = () => {
   const { fps } = useVideoConfig();
@@ -19,19 +19,19 @@ export const Spoiler: React.FC = () => {
       <Sequence name="2 · Corredor até a porta 512" from={3 * fps} durationInFrames={6 * fps} premountFor={fps}>
         <ShotCorridor />
       </Sequence>
-      <Sequence name="3 · Três batidas" from={9 * fps} durationInFrames={3 * fps} premountFor={fps}>
+      <Sequence name="3 · Três batidas" from={9 * fps} durationInFrames={2 * fps} premountFor={fps}>
         <ShotKnock />
       </Sequence>
-      <Sequence name="4 · Olho mágico" from={12 * fps} durationInFrames={3 * fps} premountFor={fps}>
+      <Sequence name="4 · Olho mágico: o mensageiro" from={11 * fps} durationInFrames={6 * fps} premountFor={fps}>
         <ShotPeephole />
       </Sequence>
-      <Sequence name="5 · Envelope sob a porta" from={15 * fps} durationInFrames={5 * fps} premountFor={fps}>
+      <Sequence name="5 · Envelope sob a porta" from={17 * fps} durationInFrames={4 * fps} premountFor={fps}>
         <ShotUnderDoor />
       </Sequence>
-      <Sequence name="6 · Convite" from={20 * fps} durationInFrames={5 * fps} premountFor={fps}>
+      <Sequence name="6 · Convite" from={21 * fps} durationInFrames={4.5 * fps} premountFor={fps}>
         <ShotEnvelope />
       </Sequence>
-      <Sequence name="7 · Em breve" from={25 * fps} durationInFrames={5 * fps} premountFor={fps}>
+      <Sequence name="7 · Em breve" from={25.5 * fps} durationInFrames={4.5 * fps} premountFor={fps}>
         <EndCard />
       </Sequence>
       <FilmLook />

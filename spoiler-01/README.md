@@ -11,11 +11,15 @@ Um quarto de hotel no escuro. Três batidas na porta. Pelo olho mágico, o corre
 |---|---|---|
 | 0–3 s | Breu; a fresta sob a porta acende | Relógio, jazz abafado |
 | 3–9 s | Corredor Art Déco até a porta 512 | *"Tem coisas… que não chegam por e-mail."* |
-| 9–12 s | Dentro do quarto: três batidas | Música para; toc, toc, toc |
-| 12–15 s | Olho mágico: corredor vazio | Silêncio e grave suspenso |
-| 15–20 s | Sombra na fresta; envelope desliza | Passos, papel no assoalho |
-| 20–25 s | "Convite" e brilho dourado | *"Elas batem à porta."* |
-| 25–30 s | EM BREVE · 29.10 | Impacto; a música "abre"; *"Em breve."* |
+| 9–11 s | Dentro do quarto: três batidas | Música para; toc, toc, toc |
+| 11–17 s | **Olho mágico (olho de peixe):** o mensageiro bate com o punho na lente, se aproxima para espiar, ergue o **Convite** diante da lente e se abaixa | Batidas, respiração, papel, tecido |
+| 17–21 s | Rente ao chão: o envelope desliza por baixo da porta; a sombra vai embora | Papel no assoalho, passos |
+| 21–25,5 s | Convite Gatsby em foil dourado, com lacre de cera | *"Elas batem à porta."* |
+| 25,5–30 s | EM BREVE · 29.10 | Impacto; a música "abre"; *"Em breve."* |
+
+**Convite (v2):** azul-marinho com foil dourado metálico. Tem moldura em degraus, raios de sol, cartucho central, faixas com losangos, leques nos cantos, "Nº 0512" (outra pista da data), "Convite" em cursiva, "PESSOAL E INTRANSFERÍVEL" e lacre de cera dourado em relevo. O código está em `src/invite.ts`.
+
+**Mensageiro:** uniforme azul-marinho com botões e dragonas douradas, quepe e luvas brancas. O rosto fica sempre na sombra. O código está em `src/Bellhop.tsx`.
 
 ## Itens provisórios
 - **Data da cartela (29.10)**: confirmar. Para mudar, edite `END_DATE` em `src/theme.ts`.

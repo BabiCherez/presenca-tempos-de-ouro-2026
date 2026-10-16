@@ -21,13 +21,16 @@ FPS = 24
 rng = np.random.default_rng(512)
 
 # Eventos sincronizados com a imagem (em quadros do vídeo, 24 fps)
-KNOCKS = [216 + 14, 216 + 26, 216 + 38]          # três batidas
-SHADOW = (360 + 8, 360 + 44)                      # passos da sombra
-ENVELOPE = (360 + 46, 360 + 86)                   # envelope deslizando
-FLAP = (480 + 40, 480 + 100)                      # brilho dourado
+KNOCKS = [216 + 8, 216 + 18, 216 + 28]           # três batidas (dentro do quarto)
+PEEP_KNOCKS = [264 + 22, 264 + 32]                # punho na lente (olho mágico)
+SHOW = (264 + 92, 264 + 106)                      # mensageiro ergue o convite
+CROUCH = (264 + 116, 264 + 140)                   # mensageiro se abaixa
+SHADOW = (408 + 62, 408 + 86)                     # passos indo embora
+ENVELOPE = (408 + 8, 408 + 46)                    # envelope deslizando
+FLAP = (504 + 36, 504 + 92)                       # brilho dourado
 FLICKER = (72 + 70, 72 + 96)                      # arandela piscando no corredor
-END = 600                                         # cartela final
-VO = {"vo1": 3.6, "vo2": 20.6, "vo3": 26.3}       # início de cada fala (s)
+END = 612                                         # cartela final
+VO = {"vo1": 3.6, "vo2": 21.5, "vo3": 26.7}       # início de cada fala (s)
 
 
 def t(n):
@@ -85,12 +88,12 @@ def music_track():
     muff = np.stack([lp(a[:, c], 520) for c in range(2)], 1)
     ir = room_ir(1.6, 3.0)
     muff = np.stack([fftconvolve(muff[:, c], ir)[: len(muff)] for c in range(2)], 1)
-    vol = np.interp(np.arange(len(muff)) / SR, [0, 3, 8.8, 9.3], [0.9, 1.3, 1.8, 0.0])
+    vol = np.interp(np.arange(len(muff)) / SR, [0, 3, 9.0, 9.3], [0.9, 1.3, 1.8, 0.0])
     place(M, muff * vol[:, None], 0.0)
     # retorno muito distante sob o envelope (20–25 s)
     b = x[int(52 * SR): int(52 * SR) + int(5.2 * SR)].copy()
     far = np.stack([lp(b[:, c], 380) for c in range(2)], 1) * env_fade(len(b), 1.5, 0.8)[:, None]
-    place(M, far * 0.9, 20.0)
+    place(M, far * 0.9, 21.0)
     # cartela final: a música "abre", limpa, e some
     c = x[int(60 * SR): int(60 * SR) + int(4.6 * SR)].copy()
     c = np.stack([bp(c[:, k], 120, 7000) for k in range(2)], 1) * env_fade(len(c), 0.04, 2.2)[:, None]
@@ -115,7 +118,7 @@ def sfx_track():
     S += np.stack([amb, amb], 1)
     # relógio no quarto (0–3 s e 12–15 s)
     tick = bp(rng.standard_normal(int(0.03 * SR)), 2500, 8000) * np.exp(-t(0.03) * 200)
-    for st, en in [(0.2, 3.0), (12.1, 15.0)]:
+    for st, en in [(0.2, 3.0)]:
         k = st
         while k < en:
             place(S, tick, k, 0.25)
@@ -128,10 +131,24 @@ def sfx_track():
     # três batidas
     for f in KNOCKS:
         place(S, knock_sfx(), f / FPS, 1.0)
-    # olho mágico: grave suspenso
-    tt = t(3.2)
-    drone = (np.sin(2 * np.pi * 41 * tt) + 0.5 * np.sin(2 * np.pi * 61.5 * tt)) * np.sin(np.pi * tt / 3.2) * 0.08
-    place(S, drone, 12.0)
+    # olho mágico: batidas na lente (mais próximas e secas) e grave suspenso
+    for f in PEEP_KNOCKS:
+        place(S, knock_sfx(), f / FPS, 1.25)
+    tt = t(6.0)
+    drone = (np.sin(2 * np.pi * 41 * tt) + 0.5 * np.sin(2 * np.pi * 61.5 * tt)) * np.sin(np.pi * tt / 6.0) * 0.08
+    place(S, drone, 11.0)
+    # respiração abafada quando ele espia pelo olho mágico
+    tt = t(1.2)
+    breath = bp(rng.standard_normal(len(tt)), 300, 1400) * np.sin(np.pi * tt / 1.2) ** 2 * 0.05
+    place(S, breath, (264 + 60) / FPS)
+    # papel do convite erguido diante da lente
+    a, b = SHOW[0] / FPS, SHOW[1] / FPS
+    n = int((b - a) * SR)
+    place(S, bp(rng.standard_normal(n), 2000, 8000) * np.sin(np.pi * np.arange(n) / n) * 0.1, a)
+    # tecido do uniforme ao se abaixar
+    a, b = CROUCH[0] / FPS, CROUCH[1] / FPS
+    n = int((b - a) * SR)
+    place(S, bp(rng.standard_normal(n), 250, 2000) * np.sin(np.pi * np.arange(n) / n) * 0.07, a)
     # passos abafados da sombra
     a, b = SHADOW[0] / FPS, SHADOW[1] / FPS
     k = a

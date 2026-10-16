@@ -1,22 +1,20 @@
 import { useThree } from "@react-three/fiber";
 import React, { useMemo } from "react";
 import * as THREE from "three";
+import { Bellhop, BellhopPose } from "./Bellhop";
+import { Envelope } from "./Envelope";
 import {
   darkWood,
   decoWallpaper,
-  envelopeFront,
   marbleChecker,
   numberPlate,
   parquet,
-  sealTexture,
   warmGlow,
 } from "./textures";
 
 // Cenário único e contínuo: corredor (z de 0 a -L) com a porta 512 no fim, e o quarto 512 atrás dela.
-export const L = 22; // comprimento do corredor
-export const W = 2.6; // largura
-export const H = 3.0; // pé-direito
-export const DOOR_Z = -L;
+import { DOOR_Z, H, L, W } from "./dims";
+export { DOOR_Z, H, L, W };
 const DOOR_W = 1.05;
 const DOOR_H = 2.25;
 const GAP = 0.022; // fresta sob a porta
@@ -36,6 +34,8 @@ export type HotelState = {
   roomLight: number;
   /** Luz que vaza pela fresta (0–1) */
   gapLight: number;
+  /** Mensageiro no corredor (null = ausente) */
+  bellhop?: BellhopPose | null;
 };
 
 export const CameraRig: React.FC<{
@@ -91,8 +91,6 @@ export const Hotel: React.FC<{ s: HotelState }> = ({ s }) => {
       wood: darkWood([L / 2, 1]),
       parquet: parquet([3, 3]),
       plate: numberPlate(),
-      env: envelopeFront(),
-      seal: sealTexture(),
       glow: warmGlow(),
       roomWall: decoWallpaper([4, 1.6]),
     }),
@@ -254,22 +252,13 @@ export const Hotel: React.FC<{ s: HotelState }> = ({ s }) => {
       <pointLight position={[0.9, 2.0, DOOR_Z - 1.3]} color="#ffcf91" intensity={2.6 * s.roomLight} distance={5} decay={1.4} />
       <pointLight position={[-1.2, 1.2, DOOR_Z - 2.2]} color="#4a66c4" intensity={1.2 * s.roomLight} distance={5} decay={1.5} />
 
-      {/* ENVELOPE */}
-      <group position={[0.02, 0.004, envZ]} rotation={[0, envRot, 0]}>
-        <mesh rotation={[-Math.PI / 2, 0, Math.PI]}>
-          <planeGeometry args={[0.32, 0.22]} />
-          <meshStandardMaterial map={tex.env} roughness={0.55} metalness={0.15} />
-        </mesh>
-        {/* brilho dourado escapando pela borda do envelope */}
-        <sprite position={[0, 0.012, 0.1]} scale={[0.45 * s.flap + 0.001, 0.1 * s.flap + 0.001, 1]}>
-          <spriteMaterial map={tex.glow} color="#ffb84d" transparent opacity={0.6 * s.flap} depthWrite={false} blending={THREE.AdditiveBlending} />
-        </sprite>
-        <mesh position={[-0.11, 0.004, -0.07]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[0.028, 32]} />
-          <meshStandardMaterial map={tex.seal} metalness={0.85} roughness={0.3} />
-        </mesh>
-        <pointLight position={[0, 0.03, -0.12]} color="#ffcf7a" intensity={0.35 * s.flap} distance={0.5} decay={2} />
-      </group>
+      {/* ENVELOPE (oculto enquanto está na mão do mensageiro: envelope < 0) */}
+      {s.envelope >= 0 ? (
+        <group position={[0.02, 0.004, envZ]} rotation={[0, envRot, 0]}>
+          <Envelope glow={s.flap} glowTex={tex.glow} />
+        </group>
+      ) : null}
+      {s.bellhop ? <Bellhop pose={s.bellhop} /> : null}
     </>
   );
 };

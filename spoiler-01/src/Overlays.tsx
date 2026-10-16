@@ -88,7 +88,7 @@ export const EndCard: React.FC = () => {
         {END_DATE}
       </div>
       <AbsoluteFill
-        style={{ backgroundColor: BLACK, opacity: interpolate(f, [4.2 * fps, 5 * fps], [0, 1], clamp) }}
+        style={{ backgroundColor: BLACK, opacity: interpolate(f, [3.8 * fps, 4.5 * fps], [0, 1], clamp) }}
       />
     </AbsoluteFill>
   );
